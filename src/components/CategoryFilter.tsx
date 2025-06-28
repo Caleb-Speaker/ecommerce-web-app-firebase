@@ -1,21 +1,30 @@
-import React from 'react';
-import { Form } from 'react-bootstrap';
+import React from "react";
 
-interface Props {
+interface CategoryFilterProps {
   categories: string[];
   selected: string;
-  onChange: (category: string) => void;
+  onSelectCategory: (category: string) => void;
 }
 
-const CategoryFilter: React.FC<Props> = ({ categories, selected, onChange }) => {
+const CategoryFilter: React.FC<CategoryFilterProps> = ({
+  categories,
+  selected,
+  onSelectCategory,
+}) => {
   return (
-    <Form.Select value={selected} onChange={(e) => onChange(e.target.value)}>
-      {categories.map((cat) => (
-        <option key={cat} value={cat}>
-          {cat.toUpperCase()}
-        </option>
-      ))}
-    </Form.Select>
+    <div className="mb-3">
+      <select
+        value={selected}
+        onChange={(e) => onSelectCategory(e.target.value)}
+        className="form-select"
+      >
+        {categories.map((category) => (
+          <option key={category} value={category}>
+            {category.charAt(0).toUpperCase() + category.slice(1)}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 };
 

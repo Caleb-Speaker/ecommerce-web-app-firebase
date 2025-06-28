@@ -1,11 +1,15 @@
+import { db } from "../firebaseConfig";
+import { collection, getDocs, query, where } from "firebase/firestore";
+
+// Fetch all products
 export const fetchAllProducts = async () => {
-  const res = await fetch('https://fakestoreapi.com/products');
-  if (!res.ok) throw new Error('Failed to fetch products');
-  return res.json();
+  const snapshot = await getDocs(collection(db, "products"));
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
+// Fetch products by category
 export const fetchProductsByCategory = async (category: string) => {
-  const res = await fetch(`https://fakestoreapi.com/products/category/${category}`);
-  if (!res.ok) throw new Error('Failed to fetch products by category');
-  return res.json();
+  const q = query(collection(db, "products"), where("category", "==", category));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };

@@ -1,34 +1,36 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CartItem } from './types';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState: CartItem[] = JSON.parse(sessionStorage.getItem('cart') || '[]');
+export interface CartItem {
+  id: string;
+  title: string;
+  price: number;
+  image: string;
+  count: number;
+}
+
+const initialState: CartItem[] = [];
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
-    addToCart(state, action: PayloadAction<CartItem>) {
-      const existing = state.find(item => item.id === action.payload.id);
-      if (existing) {
-        existing.count += 1;
+    addToCart: (state, action: PayloadAction<CartItem>) => {
+      const item = state.find(i => i.id === action.payload.id);
+      if (item) {
+        item.count += action.payload.count;
       } else {
-        state.push({ ...action.payload, count: 1 });
+        state.push(action.payload);
       }
-      sessionStorage.setItem('cart', JSON.stringify(state));
     },
-    removeFromCart(state, action: PayloadAction<number>) {
-      const index = state.findIndex(item => item.id === action.payload);
-      if (index !== -1) {
-        state.splice(index, 1);
-      }
-      sessionStorage.setItem('cart', JSON.stringify(state));
+    removeFromCart: (state, action: PayloadAction<string>) => {
+      return state.filter(item => item.id !== action.payload);
     },
-    clearCart() {
-      sessionStorage.removeItem('cart');
-      return [];
-    }
-  }
+    clearCart: () => [],
+    loadSavedCart: (state, action: PayloadAction<CartItem[]>) => {
+      return action.payload;
+    },
+  },
 });
 
-export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart, loadSavedCart } = cartSlice.actions;
 export default cartSlice.reducer;
