@@ -1,16 +1,44 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
+import { useNavigate } from 'react-router-dom';
+import { db, auth } from '../firebaseConfig';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { CartItem } from '../features/cart/types';
+import { clearCart } from '../features/cart/cartSlice';
 
 const Checkout: React.FC = () => {
   const cartItems: CartItem[] = useSelector((state: RootState) => state.cart.items);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
-  const handleCheckout = () => {
-    // Placeholder for checkout logic
-    alert('Checkout complete!');
+  const handleCheckout = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not logged in');
+
+      const order = {
+        uid: user.uid, // This MUST be 'uid' to match Firestore rules
+        createdAt: serverTimestamp(),
+        items: cartItems.map((item) => ({
+          productId: item.id,
+          title: item.title,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total: totalPrice,
+      };
+
+      await addDoc(collection(db, 'orders'), order);
+
+      dispatch(clearCart());
+      navigate('/orders');
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Failed to complete checkout. Please try again.');
+    }
   };
 
   return (
@@ -31,15 +59,11 @@ const Checkout: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {cartItems.map((item: CartItem) => (
+              {cartItems.map((item) => (
                 <tr key={item.id}>
                   <td>{item.title}</td>
                   <td>
-                    <img
-                      src={item.image || item.image || 'https://via.placeholder.com/50'}
-                      alt={item.title}
-                      width="50"
-                    />
+                    <img src={item.image} alt={item.title} height="50" />
                   </td>
                   <td>{item.quantity}</td>
                   <td>${item.price.toFixed(2)}</td>
@@ -56,10 +80,9 @@ const Checkout: React.FC = () => {
               </tr>
             </tfoot>
           </table>
-
           <div className="text-end">
-            <button className="btn btn-success" onClick={handleCheckout}>
-              Complete Checkout
+            <button onClick={handleCheckout} className="btn btn-success">
+              Confirm Checkout
             </button>
           </div>
         </>

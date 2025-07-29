@@ -1,54 +1,31 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../redux/store";
-import { CartItem } from "../features/cart/types";
-import { removeFromCart, clearCart } from "../features/cart/cartSlice";
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../redux/store';
+import { CartItem } from '../features/cart/types';
+import { removeFromCart, clearCart } from '../features/cart/cartSlice';
+import { Table, Button, Image, Container } from 'react-bootstrap';
 
 const ShoppingCart: React.FC = () => {
-  const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.cart.items);
+  const dispatch = useDispatch();
 
-  const handleRemove = (id: string) => {
-    dispatch(removeFromCart(id));
-  };
-
-  const handleClearCart = () => {
-    dispatch(clearCart());
-  };
-
-  const handleCheckout = async () => {
-    try {
-      const orderItems = cartItems.map((item: CartItem) => ({
-        productId: item.id.toString(),
-        name: item.title,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-
-      console.log("Order placed:", orderItems);
-      alert("Order placed successfully!");
-      handleClearCart();
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("An error occurred during checkout.");
-    }
-  };
-
-  const total = cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity * item.price, 0);
+  const total = cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
   return (
-    <div>
+    <Container className="mt-4">
       <h2>Shopping Cart</h2>
       {cartItems.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
         <>
-          <table>
+          <Table striped bordered hover>
             <thead>
               <tr>
-                <th>Item</th>
-                <th>Quantity</th>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Qty</th>
                 <th>Price</th>
+                <th>Subtotal</th>
                 <th>Remove</th>
               </tr>
             </thead>
@@ -56,24 +33,34 @@ const ShoppingCart: React.FC = () => {
               {cartItems.map((item: CartItem) => (
                 <tr key={item.id}>
                   <td>
-                    <img src={item.image} alt={item.title} width="50" />
-                    {item.title}
+                    <Image src={item.image} alt={item.title} width={50} rounded />
                   </td>
+                  <td>{item.title}</td>
                   <td>{item.quantity}</td>
                   <td>${item.price.toFixed(2)}</td>
+                  <td>${(item.price * item.quantity).toFixed(2)}</td>
                   <td>
-                    <button onClick={() => handleRemove(item.id)}>Remove</button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => dispatch(removeFromCart(item.id))}
+                    >
+                      Remove
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-          <h3>Total: ${total.toFixed(2)}</h3>
-          <button onClick={handleCheckout}>Checkout</button>
-          <button onClick={handleClearCart}>Clear Cart</button>
+          </Table>
+          <h4>Total: ${total.toFixed(2)}</h4>
+          <div className="d-flex gap-2">
+            <Button variant="secondary" onClick={() => dispatch(clearCart())}>
+              Clear Cart
+            </Button>
+          </div>
         </>
       )}
-    </div>
+    </Container>
   );
 };
 
