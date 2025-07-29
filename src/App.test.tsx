@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('../firebaseConfig');
+jest.mock('./firebaseConfig');
 
 const queryClient = new QueryClient();
 
