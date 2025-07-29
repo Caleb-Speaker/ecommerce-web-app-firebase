@@ -1,7 +1,7 @@
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,} from "firebase/auth";
 import {doc, setDoc, getDoc, serverTimestamp,} from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
-import { CartItem } from "../cart/cartSlice";
+import { CartItem } from "../cart/types";
 
 // Register a new user and save to Firestore
 export const registerUser = async (email: string, password: string, name: string) => {

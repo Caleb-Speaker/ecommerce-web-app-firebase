@@ -4,6 +4,9 @@ import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { Button, Form, Spinner, Alert } from "react-bootstrap";
 import { deleteUser, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import LoginForm from "../features/auth/LoginForm";
+import RegisterForm from "../features/auth/RegisterForm";
+import LogoutButton from "../features/auth/LogoutButton";
 
 const UserProfile: React.FC = () => {
   const { currentUser } = useAuth();
@@ -14,7 +17,11 @@ const UserProfile: React.FC = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!currentUser) return;
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
+
       const docRef = doc(db, "users", currentUser.uid);
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {
@@ -24,6 +31,7 @@ const UserProfile: React.FC = () => {
       }
       setLoading(false);
     };
+
     fetchUser();
   }, [currentUser]);
 
@@ -43,7 +51,6 @@ const UserProfile: React.FC = () => {
     if (!currentUser) return;
 
     const password = prompt("Please re-enter your password to confirm account deletion:");
-
     if (!password) {
       setMessage("Account deletion cancelled.");
       return;
@@ -65,8 +72,20 @@ const UserProfile: React.FC = () => {
 
   if (loading) return <Spinner animation="border" />;
 
+  if (!currentUser) {
+    return (
+      <div className="container mt-4">
+        <h2>Welcome</h2>
+        <p>Please log in or register to access your profile.</p>
+        <LoginForm />
+        <hr />
+        <RegisterForm />
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="container mt-4">
       <h2>User Profile</h2>
       {message && <Alert variant="info">{message}</Alert>}
       <Form>
@@ -81,9 +100,10 @@ const UserProfile: React.FC = () => {
         <Button variant="primary" onClick={handleUpdate} className="me-2">
           Update Profile
         </Button>
-        <Button variant="danger" onClick={handleDelete}>
+        <Button variant="danger" onClick={handleDelete} className="me-2">
           Delete Account
         </Button>
+        <LogoutButton />
       </Form>
     </div>
   );

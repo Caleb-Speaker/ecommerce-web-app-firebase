@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, Button } from "react-bootstrap";
-import { CartItem } from "../features/cart/cartSlice";
+import { CartItem } from "../features/cart/types";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cart/cartSlice";
 
@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       title: product.title,
       price: product.price,
       image: product.image,
-      count: 1,
+      quantity: 1,
     };
     dispatch(addToCart(cartItem));
   };
