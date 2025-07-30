@@ -1,124 +1,79 @@
-# 🛒 E-commerce Web App with Firebase
+# E-Commerce Web App
 
-This is a full-featured e-commerce web application built with **React + TypeScript**, powered by **Firebase** for authentication, database, and hosting.
+A modern React + TypeScript e-commerce application with Firebase authentication, Firestore database, and full testing & CI/CD integration.
 
----
+## 🚀 Live Demo
 
-## 🚀 Features
-
-### 🔐 Firebase Authentication
-- User registration & login (email/password)
-- Authentication state management using `onAuthStateChanged`
-- Secure logout and session handling
-- Reauthentication for sensitive actions like account deletion
-
-### 👤 User Profile Management
-- Firestore `users/{uid}` document
-- View & update profile (name, address)
-- Delete account (removes both Firebase Auth user and Firestore doc)
-
-### 🛍️ Product Management (Firestore)
-- All product data stored in Firestore `products` collection
-- Public product listing
-- Admin functionality (create, update, delete products)
-
-### 🛒 Shopping Cart & Checkout
-- Local cart state with ability to checkout
-- Order is stored in Firestore under `orders/{orderId}` with user UID, items, and total
-
-### 📦 Order History
-- Authenticated users can view past orders
-- Displays date, total, and list of items in each order
+**🌐 [Visit the Live Site](https://ecommerce-web-app-firebase-a5xc294n8-caleb-speakers-projects.vercel.app/)**
 
 ---
 
-## 🔧 Tech Stack
+## 🧪 Testing
 
-- **React + TypeScript**
-- **React Bootstrap** for UI
-- **React Router** for routing
-- **Firebase**:
-  - Authentication
-  - Firestore Database
-  - Firebase Rules for secure access control
+This project uses **Jest** and **React Testing Library** with full Test-Driven Development (TDD) support.
 
----
+### 🔹 Unit Tests
 
-## 🔐 Firestore Security Rules
+**Component Rendering and Interaction**
 
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+- `CategoryFilter.test.tsx`: Verifies correct rendering and interaction with category buttons.
+- `ProductCard.test.tsx`: Ensures product details are rendered and button interactions are handled properly.
 
-    // Users can access only their own profile
-    match /users/{userId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null;
-    }
+### 🔹 Integration Test
 
-    // Orders
-    match /orders/{orderId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
-      allow write: if request.auth != null && request.auth.uid == request.resource.data.uid;
-    }
+**Home Page + Redux + Cart Functionality**
 
-    // Pending Carts
-    match /pendingCarts/{cartId} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.uid;
-    }
+- `Home.test.tsx`: Simulates adding a product to cart from the home page using mocked API data.
+- `App.test.tsx`: Asserts overall app integration including cart badge updates and navbar brand rendering.
 
-    // Products
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}
+### 🔹 Test Utility
+
+- `test-utils.tsx`: Provides a custom render wrapper with Redux, React Query, and mocked Firebase AuthContext for reliable test isolation.
+
+### ✅ Run All Tests
+
+```bash
+npm test -- --watchAll=false
 ```
 
 ---
 
-## 🛠️ Project Setup
+## ⚙️ CI/CD with GitHub Actions & Vercel
 
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/Caleb-Speaker/ecommerce-web-app-firebase.git
-   cd ecommerce-web-app-firebase
-   ```
+### ✅ Continuous Integration (CI)
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+A GitHub Actions workflow located in `.github/workflows/main.yml` handles CI:
 
-3. **Run the app**
-   ```bash
-   npm start
-   ```
+- **Triggered on**: Every push to the `main` branch.
+- **Steps:**
+  - Install dependencies
+  - Lint and build the app
+  - Run all tests with `npm test`
+  - Fails the build if any test fails
 
----
+### 🚀 Continuous Deployment (CD)
 
-## 📁 Project Structure
+- **Deployment platform**: [Vercel](https://vercel.com)
+- **Configured via** GitHub Actions using the Vercel CLI.
+- **Environment Secrets** (configured in your GitHub repo → Settings → Secrets and variables):
+  - `VERCEL_TOKEN`
+  - `VERCEL_ORG_ID`
+  - `VERCEL_PROJECT_ID`
 
-```
-src/
-├── components/
-│   └── ShoppingCart.tsx, ProductCard.tsx
-├── context/
-│   └── AuthContext.tsx
-├── features/
-│   └── auth/ (Login, Register, Logout)
-├── pages/
-│   └── Home.tsx, Checkout.tsx, OrderHistory.tsx, UserProfile.tsx
-├── services/
-│   └── productService.ts, orderService.ts, userService.ts
-├── App.tsx
-└── firebaseConfig.ts
-```
+- **CD Flow**:
+  - Deploys to Vercel **only if** tests pass on `main`.
 
 ---
 
-## 📄 Authors
+## 📦 Tech Stack
 
-Caleb Speaker
+- **Frontend**: React, TypeScript, Redux Toolkit, React Query, React Bootstrap
+- **Backend**: Firebase (Auth + Firestore)
+- **Testing**: Jest, React Testing Library
+- **CI/CD**: GitHub Actions + Vercel
+
+---
+
+## 📝 License
+
+Caleb James Speaker
