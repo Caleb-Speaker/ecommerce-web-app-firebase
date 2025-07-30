@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebaseConfig';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { CartItem } from '../features/cart/types';
-import { clearCart } from '../features/cart/cartSlice';
+import { clearCart, removeFromCart } from '../features/cart/cartSlice';
 
 const Checkout: React.FC = () => {
   const cartItems: CartItem[] = useSelector((state: RootState) => state.cart.items);
@@ -20,7 +20,7 @@ const Checkout: React.FC = () => {
       if (!user) throw new Error('User not logged in');
 
       const order = {
-        uid: user.uid, // This MUST be 'uid' to match Firestore rules
+        uid: user.uid,
         createdAt: serverTimestamp(),
         items: cartItems.map((item) => ({
           productId: item.id,
@@ -41,6 +41,10 @@ const Checkout: React.FC = () => {
     }
   };
 
+  const handleRemoveItem = (id: string) => {
+    dispatch(removeFromCart(id));
+  };
+
   return (
     <div className="container mt-4">
       <h2>Checkout</h2>
@@ -56,6 +60,7 @@ const Checkout: React.FC = () => {
                 <th>Quantity</th>
                 <th>Price</th>
                 <th>Total</th>
+                <th>Actions</th> {}
               </tr>
             </thead>
             <tbody>
@@ -68,12 +73,20 @@ const Checkout: React.FC = () => {
                   <td>{item.quantity}</td>
                   <td>${item.price.toFixed(2)}</td>
                   <td>${(item.quantity * item.price).toFixed(2)}</td>
+                  <td>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleRemoveItem(item.id)}
+                    >
+                      Remove
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={4} className="text-end fw-bold">
+                <td colSpan={5} className="text-end fw-bold">
                   Grand Total:
                 </td>
                 <td className="fw-bold">${totalPrice.toFixed(2)}</td>
