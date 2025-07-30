@@ -1,4 +1,3 @@
-// src/hooks/useProducts.ts
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllProducts, fetchProductsByCategory } from '../api/products';
 
